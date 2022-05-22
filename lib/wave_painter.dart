@@ -73,6 +73,7 @@ class WavePainter extends CustomPainter {
       // Create the paint and draw
       final paint = createPaint(primColor, secColor, waveBaseThickness, size, variation);
       canvas.drawPath(path, paint);
+      //canvas.saveLayer(bounds, paint)
       
       // reset path
       path = Path();
@@ -86,6 +87,7 @@ class WavePainter extends CustomPainter {
       ..strokeWidth = baseStroke + strokeVariation
       ..style = PaintingStyle.stroke
       ..isAntiAlias = true
+      //..color = primaryColor;
       ..shader = LinearGradient(
               colors: [clear, secondaryColor, primaryColor, secondaryColor, clear],
               stops: const [0.2, 0.3, 0.5, 0.7, 0.8],

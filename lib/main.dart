@@ -53,7 +53,7 @@ class _WaveDemoState extends State<WaveDemo> with SingleTickerProviderStateMixin
     _animation = Tween(begin: 0.0, end: 1.0).animate(controller);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       body: Column(
         children: [
 
@@ -62,6 +62,7 @@ class _WaveDemoState extends State<WaveDemo> with SingleTickerProviderStateMixin
             animation: _animation, 
             builder: (context, nil) {
               return CustomPaint(
+                isComplex: true,
                 size: const Size(double.infinity, 350),
                 painter: WavePainter(
                     time: _animation.value,
@@ -77,27 +78,27 @@ class _WaveDemoState extends State<WaveDemo> with SingleTickerProviderStateMixin
           // Controls for the parameters
           Column(
             children: [
-              const Text('Waves', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text('Waves', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
               Slider(value: waves, min: 1, max: 5, divisions: 4, label: waves.toInt().toString(), onChanged: (double value) {
                 setState(() { waves = value; });
               }),
 
-              const Text('Segments', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text('Segments', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
               Slider(value: segments, min: 1, max: 4, divisions: 3, label: segments.toInt().toString(), onChanged: (double value) {
                 setState(() { segments = value; });
               }),
 
-              const Text('Amplitude', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text('Amplitude', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
               Slider(value: amplitude, min: 10, max: 80, onChanged: (double value) {
                 setState(() { amplitude = value; });
               }),
               
-              const Text('Wave X Offset', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text('X Offset', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
               Slider(value: waveHorOffset, min: 0, max: 50, onChanged: (double value) {
                 setState(() { waveHorOffset = value; });
               }),
 
-              const Text('Wave Hue Rotation', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text('Hue Rotation', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
               Slider(value: hue, min: 0, max: 360, onChanged: (double value) {
                 setState(() { 
                   hue = value;

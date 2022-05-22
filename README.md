@@ -1,4 +1,4 @@
-# waves
+# Fun with waves
 
 A new Flutter project.
 
