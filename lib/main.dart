@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'WavePainter.dart';
+import 'wave_painter.dart';
+import 'dart:math';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -25,14 +27,13 @@ class WaveDemo extends StatefulWidget {
 
 class _WaveDemoState extends State<WaveDemo> with SingleTickerProviderStateMixin {
   // init values
-  double time = 0.0;
   double waves = 4;
   double segments = 1;
   double amplitude = 50;
   double waveHorOffset = 15;
+  double hue = 0;
   Color primColor = Colors.red;
   Color secColor = Colors.orange;
-  final period = 1.0;
   final duration = 4000;
   late Animation<double> _animation;
   late AnimationController controller;
@@ -49,119 +50,61 @@ class _WaveDemoState extends State<WaveDemo> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    _animation = Tween(begin: 0.0, end: period).animate(controller)
-      ..addListener(() {
-        setState(() {
-          time = _animation.value;
-        });
-      });
+    _animation = Tween(begin: 0.0, end: 1.0).animate(controller);
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          CustomPaint(
-            size: const Size(double.infinity, 350),
-            painter: WavePinter(
-                time: time,
-                waves: waves,
-                segments: segments,
-                amplitude: amplitude,
-                waveHorOffset: waveHorOffset,
-                primColor: primColor,
-                secColor: secColor),
-          ),
+
+          // Wave painter
+          AnimatedBuilder(
+            animation: _animation, 
+            builder: (context, nil) {
+              return CustomPaint(
+                size: const Size(double.infinity, 350),
+                painter: WavePainter(
+                    time: _animation.value,
+                    waves: waves,
+                    segments: segments,
+                    amplitude: amplitude,
+                    waveHorOffset: waveHorOffset,
+                    primColor: primColor,
+                    secColor: secColor),
+              );
+          }),
 
           // Controls for the parameters
           Column(
             children: [
               const Text('Waves', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              Slider(
-                  value: waves,
-                  min: 1,
-                  max: 5,
-                  divisions: 4,
-                  label: waves.toInt().toString(),
-                  onChanged: (double value) {
-                    setState(() {
-                      waves = value;
-                    });
-                  }),
+              Slider(value: waves, min: 1, max: 5, divisions: 4, label: waves.toInt().toString(), onChanged: (double value) {
+                setState(() { waves = value; });
+              }),
+
               const Text('Segments', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              Slider(
-                  value: segments,
-                  min: 1,
-                  max: 4,
-                  divisions: 3,
-                  label: segments.toInt().toString(),
-                  onChanged: (double value) {
-                    setState(() {
-                      segments = value;
-                    });
-                  }),
+              Slider(value: segments, min: 1, max: 4, divisions: 3, label: segments.toInt().toString(), onChanged: (double value) {
+                setState(() { segments = value; });
+              }),
+
               const Text('Amplitude', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              Slider(
-                  value: amplitude,
-                  min: 10,
-                  max: 80,
-                  //divisions: 7,
-                  //label: amplitude.toInt().toString(),
-                  onChanged: (double value) {
-                    setState(() {
-                      amplitude = value;
-                    });
-                  }),
+              Slider(value: amplitude, min: 10, max: 80, onChanged: (double value) {
+                setState(() { amplitude = value; });
+              }),
+              
               const Text('Wave X Offset', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              Slider(
-                  value: waveHorOffset,
-                  min: 0,
-                  max: 50,
-                  onChanged: (double value) {
-                    setState(() {
-                      waveHorOffset = value;
-                    });
-                  }),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                      style: ElevatedButton.styleFrom(primary: Colors.red),
-                      child: const Text('Red'),
-                      onPressed: () {
-                        setState(() {
-                          primColor = Colors.red;
-                          secColor = Colors.orange;
-                        });
-                      }),
-                  ElevatedButton(
-                      style: ElevatedButton.styleFrom(primary: Colors.yellow),
-                      child: const Text('Yellow'),
-                      onPressed: () {
-                        setState(() {
-                          primColor = Colors.yellow;
-                          secColor = Colors.yellowAccent.shade100;
-                        });
-                      }),
-                  ElevatedButton(
-                      style: ElevatedButton.styleFrom(primary: Colors.blue),
-                      child: const Text('Blue'),
-                      onPressed: () {
-                        setState(() {
-                          primColor = Colors.blue;
-                          secColor = Colors.lightBlueAccent;
-                        });
-                      }),
-                  ElevatedButton(
-                      style: ElevatedButton.styleFrom(primary: Colors.greenAccent),
-                      child: const Text('Green'),
-                      onPressed: () {
-                        setState(() {
-                          primColor = Colors.greenAccent.shade400;
-                          secColor = Colors.greenAccent;
-                        });
-                      }),
-                ],
-              )
+              Slider(value: waveHorOffset, min: 0, max: 50, onChanged: (double value) {
+                setState(() { waveHorOffset = value; });
+              }),
+
+              const Text('Wave Hue Rotation', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Slider(value: hue, min: 0, max: 360, onChanged: (double value) {
+                setState(() { 
+                  hue = value;
+                  primColor = increaseColorHue(Colors.red, value);
+                  secColor = increaseColorHue(Colors.red, value + 40);
+                  });
+              }),
             ],
           )
         ],
@@ -186,5 +129,11 @@ class _WaveDemoState extends State<WaveDemo> with SingleTickerProviderStateMixin
       default:
         break;
     }
+  }
+
+  Color increaseColorHue(Color color, double increment) {
+    var hslColor = HSLColor.fromColor(color);
+    var newValue = min(max(hslColor.lightness + increment, 0.0), 360.0);
+    return hslColor.withHue(newValue).toColor();
   }
 }
