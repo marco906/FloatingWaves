@@ -117,6 +117,7 @@ class _WaveDemoState extends State<WaveDemo> with SingleTickerProviderStateMixin
   void dispose() {
     controller.dispose();
     super.dispose();
+    print("dispose");
   }
 
   void setAnimationForStatus(AnimationStatus status) {
