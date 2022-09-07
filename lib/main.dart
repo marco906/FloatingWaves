@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waves/wave_painter2.dart';
 import 'wave_painter.dart';
 import 'dart:math';
 
@@ -13,10 +14,30 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const WaveDemo(),
+      home: const WaveDemo2(),
     );
   }
 }
+
+class WaveDemo2 extends StatelessWidget
+{
+  const WaveDemo2({Key? key}) : super(key: key);
+  final double width = 350;
+
+  @override
+  Widget build(BuildContext context) {
+  return 
+    Column(
+      children: [
+        CustomPaint(
+        size: Size(width,(width*0.583)),
+        painter: WavePinter2(),
+        ),
+      ],
+    );
+  }
+}
+
 
 class WaveDemo extends StatefulWidget {
   const WaveDemo({Key? key}) : super(key: key);
