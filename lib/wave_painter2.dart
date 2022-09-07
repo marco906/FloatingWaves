@@ -7,11 +7,11 @@ class WavePinter2 extends CustomPainter{
   void paint(Canvas canvas, Size size) {
 
   Paint paint0 = Paint()
-    ..color = Color.fromARGB(80, 255, 255, 255)
+    //..color = Color.fromARGB(80, 255, 255, 255)
     ..style = PaintingStyle.stroke
-    ..strokeWidth = 12;
+    ..strokeWidth = 18;
 
-  paint0.shader = ui.Gradient.linear(Offset(size.width*0.03,size.height*0.87),Offset(size.width*1.03,size.height*0.03),[Color(0xff2940b6),Color(0xff9a1fd0)],[0.00,1.00]); 
+  paint0.shader = ui.Gradient.linear(Offset(0,size.height*0.5),Offset(size.width*0.8,size.height*0.1),[Color.fromARGB(0, 255, 255, 255),Color.fromARGB(90, 249, 249, 249), Color.fromARGB(0, 255, 255, 255)],[0.0, 0.5, 1.0]); 
      
          
   Path path0 = Path();
@@ -34,11 +34,15 @@ class WavePinter2 extends CustomPainter{
   final path2 = path0.shift(Offset(shift, -shift));
   final path3 = path0.shift(Offset(-shift, shift));
   final path4 = path0.shift(Offset(-shift, -shift));
+  final path5 = path0.shift(Offset(0, shift));
+  final path6 = path0.shift(Offset(0, -shift));
   
   canvas.drawPath(path1, paint0);
   canvas.drawPath(path2, paint0);
   canvas.drawPath(path3, paint0);
   canvas.drawPath(path4, paint0);
+  canvas.drawPath(path5, paint0);
+  canvas.drawPath(path6, paint0);
     
   }
 
