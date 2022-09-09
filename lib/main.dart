@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:waves/wave_painter2.dart';
+import 'package:waves/wave_painter3.dart';
 import 'wave_painter.dart';
 import 'dart:math';
 
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const WaveDemo2(),
+      home: const WaveDemo3(),
     );
   }
 }
@@ -31,7 +32,27 @@ class WaveDemo2 extends StatelessWidget
       children: [
         CustomPaint(
         size: Size(width,(width*0.583)),
-        painter: WavePinter2(),
+        painter: WavePainter2(),
+        ),
+      ],
+    );
+  }
+}
+
+class WaveDemo3 extends StatelessWidget
+{
+  const WaveDemo3({Key? key}) : super(key: key);
+  final double width = 300;
+
+  @override
+  Widget build(BuildContext context) {
+  return 
+    Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        CustomPaint(
+        size: Size(width,(width*0.18)),
+        painter: WavePainter3(),
         ),
       ],
     );

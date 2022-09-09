@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
-class WavePinter2 extends CustomPainter{
+class WavePainter2 extends CustomPainter{
   
   @override
   void paint(Canvas canvas, Size size) {
@@ -11,7 +11,7 @@ class WavePinter2 extends CustomPainter{
     ..style = PaintingStyle.stroke
     ..strokeWidth = 18;
 
-  paint0.shader = ui.Gradient.linear(Offset(0,size.height*0.5),Offset(size.width*0.8,size.height*0.1),[Color.fromARGB(0, 255, 255, 255),Color.fromARGB(90, 249, 249, 249), Color.fromARGB(0, 255, 255, 255)],[0.0, 0.5, 1.0]); 
+  paint0.shader = ui.Gradient.linear(Offset(0,size.height*0.87),Offset(size.width*1.03,size.height*0.03),[Color.fromARGB(0, 255, 255, 255),Color.fromARGB(90, 249, 249, 249), Color.fromARGB(0, 255, 255, 255)],[0.0, 0.5, 1.0]); 
      
          
   Path path0 = Path();
