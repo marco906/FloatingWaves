@@ -17,7 +17,7 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
   double rotZ = 0;
   double scale = 1;
 
-  final duration = 4000;
+  final duration = 2500;
   late Animation<double> _animation;
   late AnimationController controller;
 
@@ -170,30 +170,44 @@ class WavePainter3 extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeWidth = 8;
 
-    final int alpha1 = (sin((time * pi) + 0.00 * pi) * 255).abs().toInt();
-    final int alpha2 = (sin((time * pi) + 0.0625 * pi) * 255).abs().toInt();
-    final int alpha3 = (sin((time * pi) + 0.125 * pi) * 255).abs().toInt();
-		final int alpha4 = (sin((time * pi) + 0.1875 * pi) * 255).abs().toInt();
-    final int alpha5 = (sin((time * pi) + 0.25 * pi) * 255).abs().toInt();
+		const double f_phase = 1;
+		const double f_time = 2;
+
+		int alphaForFraction(double fraction) {
+			return ((sin((time * 2 * pi) - (0.5 * pi) + (fraction * pi)) + 1) * 0.5 * 255).toInt();
+		}
 
     final Color baseColor = Color.fromARGB(255, 244, 19, 68);
 
     final gradient = ui.Gradient.linear(Offset(0, size.height * 0.5), Offset(size.width, size.height * 0.5), [
       baseColor.withAlpha(0),
-      baseColor.withAlpha(alpha1),
-      baseColor.withAlpha(alpha2),
-      baseColor.withAlpha(alpha3),
-			baseColor.withAlpha(alpha4),
-      baseColor.withAlpha(alpha5),
+      baseColor.withAlpha(alphaForFraction(0.000)),
+      baseColor.withAlpha(alphaForFraction(0.125)),
+      baseColor.withAlpha(alphaForFraction(0.250)),
+			baseColor.withAlpha(alphaForFraction(0.375)),
+      baseColor.withAlpha(alphaForFraction(0.500)),
+			baseColor.withAlpha(alphaForFraction(0.625)),
+      baseColor.withAlpha(alphaForFraction(0.750)),
+			baseColor.withAlpha(alphaForFraction(0.875)),
+      baseColor.withAlpha(alphaForFraction(1.000)),
+      //baseColor.withAlpha(alpha2),
+			// baseColor.withAlpha(alpha1),
+      // baseColor.withAlpha(alpha2),
+      // baseColor.withAlpha(alpha3),
+      // baseColor.withAlpha(alpha4),
       baseColor.withAlpha(0),
       // Color.fromARGB(255, 237, 244, 19),
       // Color.fromARGB(0, 255, 255, 255),
     ], [
       0.0,
       0.1,
+			0.125,
       0.25,
+			0.375,
 			0.5,
+			0.625,
 			0.75,
+			0.875,
       0.9,
       1.0
     ]);
