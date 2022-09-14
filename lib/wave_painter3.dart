@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
@@ -16,8 +17,10 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
   double rotY = 0;
   double rotZ = 0;
   double scale = 1;
+  double transX = 0;
+  double transY = 0;
 
-  final duration = 2500;
+  final duration = 3000;
   late Animation<double> _animation;
   late AnimationController controller;
 
@@ -45,7 +48,7 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
               builder: (context, nil) {
                 return CustomPaint(
                   size: Size(width, (width * 0.18)),
-                  painter: WavePainter3(_animation.value, rotX, rotY, rotZ, scale),
+                  painter: WavePainter3(controller.value, rotX, rotY, rotZ, scale, transX, transY),
                 );
               }),
           Column(
@@ -113,6 +116,46 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
                       time = value;
                     });
                   }),
+              
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                OutlinedButton(
+                onPressed: () {
+                  setState(() {
+                    transX = transX - 10;
+                  });
+                },
+                child: Text("Left"),
+              ),
+                OutlinedButton(
+                onPressed: () {
+                  setState(() {
+                    transX = transX + 10;
+                  });
+                },
+                child: Text("Right"),
+                ),
+                OutlinedButton(
+                onPressed: () {
+                  setState(() {
+                    transY = transY - 10;
+                  });
+                },
+                child: Text("UP"),
+              ),
+                OutlinedButton(
+                onPressed: () {
+                  setState(() {
+                    transY = transY + 10;
+                  });
+                },
+                child: Text("Down")
+                )
+              ],
+
+              ),
+
               OutlinedButton(
                 onPressed: () {
                   setState(() {
@@ -120,6 +163,8 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
                     rotX = 0;
                     rotY = 0;
                     rotZ = 0;
+                    transX = 0;
+                    transY = 0;
                   });
                 },
                 child: Text("Reset"),
@@ -139,7 +184,7 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
 
   void setAnimationForStatus(AnimationStatus status) {
     switch (status) {
-      case AnimationStatus.completed:
+      case AnimationStatus.completed:       
         controller.reset();
         break;
       case AnimationStatus.dismissed:
@@ -158,8 +203,10 @@ class WavePainter3 extends CustomPainter {
   final double rotY;
   final double rotZ;
   final double scale;
+  final double transX;
+  final double transY;
 
-  WavePainter3(this.time, this.rotX, this.rotY, this.rotZ, this.scale);
+  WavePainter3(this.time, this.rotX, this.rotY, this.rotZ, this.scale, this.transX, this.transY);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -168,49 +215,39 @@ class WavePainter3 extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeJoin = StrokeJoin.round
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 8;
-
-		const double f_phase = 1;
-		const double f_time = 2;
+      ..strokeWidth = 6;
 
 		int alphaForFraction(double fraction) {
-			return ((sin((time * 2 * pi) - (0.5 * pi) + (fraction * pi)) + 1) * 0.5 * 255).toInt();
+			return ((sin((time * 2 * pi + 1.6* pi) - (0.5 * pi) + (fraction * pi)) + 1) * 0.5 * 200).toInt();
 		}
 
-    final Color baseColor = Color.fromARGB(255, 244, 19, 68);
+    final Color baseColor = Color.fromARGB(255, 33, 240, 243);
+
+    //final List<double> gradientStops = List.generate(10, (index) => index * 0.11);
+    final List<double> gradientStops = [
+      0.0,
+      0.05,
+      0.20, 0.28, 0.44, 0.55, 0.66, 0.77, 
+      0.95, 
+      1.0
+    ];
 
     final gradient = ui.Gradient.linear(Offset(0, size.height * 0.5), Offset(size.width, size.height * 0.5), [
       baseColor.withAlpha(0),
-      baseColor.withAlpha(alphaForFraction(0.000)),
-      baseColor.withAlpha(alphaForFraction(0.125)),
-      baseColor.withAlpha(alphaForFraction(0.250)),
-			baseColor.withAlpha(alphaForFraction(0.375)),
-      baseColor.withAlpha(alphaForFraction(0.500)),
-			baseColor.withAlpha(alphaForFraction(0.625)),
-      baseColor.withAlpha(alphaForFraction(0.750)),
-			baseColor.withAlpha(alphaForFraction(0.875)),
-      baseColor.withAlpha(alphaForFraction(1.000)),
-      //baseColor.withAlpha(alpha2),
-			// baseColor.withAlpha(alpha1),
-      // baseColor.withAlpha(alpha2),
-      // baseColor.withAlpha(alpha3),
-      // baseColor.withAlpha(alpha4),
+      baseColor.withAlpha(0),
+      //baseColor.withAlpha(alphaForFraction(0.120)),
+      baseColor.withAlpha(alphaForFraction(0.0)),
+      baseColor.withAlpha(alphaForFraction(0.25)),
+			baseColor.withAlpha(alphaForFraction(0.450)),
+      baseColor.withAlpha(alphaForFraction(0.550)),
+			baseColor.withAlpha(alphaForFraction(0.650)),
+      baseColor.withAlpha(alphaForFraction(0.95)),
+			//baseColor.withAlpha(alphaForFraction(0.900)),
+      baseColor.withAlpha(0),
       baseColor.withAlpha(0),
       // Color.fromARGB(255, 237, 244, 19),
       // Color.fromARGB(0, 255, 255, 255),
-    ], [
-      0.0,
-      0.1,
-			0.125,
-      0.25,
-			0.375,
-			0.5,
-			0.625,
-			0.75,
-			0.875,
-      0.9,
-      1.0
-    ]);
+    ], gradientStops);
 
     paint0.shader = gradient;
 
@@ -218,18 +255,41 @@ class WavePainter3 extends CustomPainter {
       ..rotateX(rotX)
       ..rotateY(rotY)
       ..rotateZ(rotZ)
-      ..scale(scale)
+      ..scale(scale);
+
+    final depthMatrix = Matrix4.identity()
       ..setEntry(3, 0, 0.000)
       ..setEntry(3, 1, 0.000)
-      ..setEntry(3, 2, 0.000);
+      ..setEntry(3, 2, 0.007);
 
     // transform canvas space
+    canvas.translate(transX, transY);
+    canvas.transform(depthMatrix.storage);
     canvas.transform(rotationMatrix.storage);
+    
+    
 
     // create path
-    final path_0 = createWavePath(size);
+    final double scaleValue = (sin(2*pi*time) * 0.05) + 1;
+    //final pathOffset_1 = offset * sin(time * 2 * pi + pi);
+    //final double scaleValue = 1.1;
+    //final Matrix4 scaleMatrix = Matrix4.identity()
+    //  ..scale([1,1,1,1]);
 
+    final Path path_0 = createWavePath(size);
+    //final Path modPath_0 = path_0.shift(Offset(transX, transY));
     canvas.drawPath(path_0, paint0);
+    
+
+    // create path
+    //final pathOffset_1 = offset * sin(time * 2 * pi);
+    final path_1 = path_0.shift(Offset(2, 2));
+    canvas.drawPath(path_1, paint0);
+
+        // create path
+    //final pathOffset_2 = 2 * offset * sin(time * 2 * pi);
+    final path_2 = path_0.shift(Offset(4, 4));
+    canvas.drawPath(path_2, paint0);
   }
 
   @override
