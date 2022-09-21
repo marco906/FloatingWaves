@@ -16,13 +16,20 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
   double rotX = 0;
   double rotY = 0;
   double rotZ = 0;
+	double depth = 7.0;
   double scale = 1;
   double transX = 0;
-  double transY = 0;
+  double transY = 50;
+	double hue = 170;
+	double thickness = 2.0;
+	int waves = 1;
 
   final duration = 3000;
   late Animation<double> _animation;
   late AnimationController controller;
+
+  final textStyle = const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey);
+  final textStyle2 = const TextStyle(fontSize: 14, fontWeight: FontWeight.normal, color: Colors.grey);
 
   @override
   void initState() {
@@ -32,6 +39,25 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
     controller.addStatusListener((status) {
       setAnimationForStatus(status);
     });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  void setAnimationForStatus(AnimationStatus status) {
+    switch (status) {
+      case AnimationStatus.completed:       
+        controller.reset();
+        break;
+      case AnimationStatus.dismissed:
+        controller.forward();
+        break;
+      default:
+        break;
+    }
   }
 
   @override
@@ -48,15 +74,27 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
               builder: (context, nil) {
                 return CustomPaint(
                   size: Size(width, (width * 0.18)),
-                  painter: WavePainter3(controller.value, rotX, rotY, rotZ, scale, transX, transY),
+                  painter: WavePainter3(controller.value, rotX, rotY, rotZ, scale, transX, transY, depth, hue, thickness, waves),
                 );
               }),
           Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: const [
-                Text('Rot X', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-                Text('Rot Y', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+                Row(
+                  children: [
+                    Text('Rot X', style: textStyle),
+                    const SizedBox(width: 5),
+                    Text(rotX.toStringAsFixed(2), style: textStyle2)
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text('Rot Y', style: textStyle),
+                    const SizedBox(width: 5),
+                    Text(rotY.toStringAsFixed(2), style: textStyle2)
+                  ],
+                ),
               ]),
               Row(
                 children: [
@@ -80,9 +118,21 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
                       }),
                 ],
               ),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: const [
-                Text('Rot Z', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-                Text('Scale', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+                Row(
+                  children: [
+                    Text('Rot Z', style: textStyle),
+                    const SizedBox(width: 5),
+                    Text(rotZ.toStringAsFixed(2), style: textStyle2)
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text('Depth', style: textStyle),
+                    const SizedBox(width: 5),
+                    Text(depth.toStringAsFixed(1), style: textStyle2)
+                  ],
+                ),
               ]),
               Row(
                 children: [
@@ -96,6 +146,35 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
                         });
                       }),
                   Slider(
+                      value: depth,
+                      min: 0,
+                      max: 10,
+                      onChanged: (double value) {
+                        setState(() {
+                          depth = value;
+                        });
+                      }),
+                ],
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+                Row(
+                  children: [
+                    Text('Scale', style: textStyle),
+                    const SizedBox(width: 5),
+                    Text(scale.toStringAsFixed(2), style: textStyle2)
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text('Thickness', style: textStyle),
+                    const SizedBox(width: 5),
+                    Text(thickness.toStringAsFixed(1), style: textStyle2)
+                  ],
+                ),
+              ]),
+              Row(
+                children: [
+                  Slider(
                       value: scale,
                       min: 0,
                       max: 5,
@@ -104,70 +183,104 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
                           scale = value;
                         });
                       }),
+                  Slider(
+                      value: thickness,
+                      min: 1,
+                      max: 12,
+                      onChanged: (double value) {
+                        setState(() {
+                          thickness = value;
+                        });
+                      }),
                 ],
               ),
-              Text('Time', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-              Slider(
-                  value: time,
-                  min: 0,
-                  max: 1,
-                  onChanged: (double value) {
-                    setState(() {
-                      time = value;
-                    });
-                  }),
-              
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                OutlinedButton(
-                onPressed: () {
-                  setState(() {
-                    transX = transX - 10;
-                  });
-                },
-                child: Text("Left"),
-              ),
-                OutlinedButton(
-                onPressed: () {
-                  setState(() {
-                    transX = transX + 10;
-                  });
-                },
-                child: Text("Right"),
+
+							Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+                Row(
+                  children: [
+                    Text('Waves', style: textStyle),
+                    const SizedBox(width: 5),
+                    Text(waves.toStringAsFixed(0), style: textStyle2)
+                  ],
                 ),
-                OutlinedButton(
-                onPressed: () {
-                  setState(() {
-                    transY = transY - 10;
-                  });
-                },
-                child: Text("UP"),
+                Row(
+                  children: [
+                    Text('Color', style: textStyle),
+                    const SizedBox(width: 5),
+                    Text(hue.toStringAsFixed(0), style: textStyle2)
+                  ],
+                ),
+              ]),
+              Row(
+                children: [
+                  Slider(
+                      value: waves.toDouble(),
+                      min: 1,
+                      max: 3,
+											divisions: 2,
+                      onChanged: (double value) {
+                        setState(() {
+                          waves = value.toInt();
+                        });
+                      }),
+                  Slider(
+                      value: hue,
+                      min: 0,
+                      max: 360,
+                      onChanged: (double value) {
+                        setState(() {
+                          hue = value;
+                        });
+                      }),
+                ],
               ),
-                OutlinedButton(
-                onPressed: () {
-                  setState(() {
-                    transY = transY + 10;
-                  });
-                },
-                child: Text("Down")
-                )
-              ],
+              
+							translateButtons,
 
-              ),
-
-              OutlinedButton(
-                onPressed: () {
-                  setState(() {
-                    scale = 1;
-                    rotX = 0;
-                    rotY = 0;
-                    rotZ = 0;
-                    transX = 0;
-                    transY = 0;
-                  });
-                },
-                child: Text("Reset"),
+              Row(
+								mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  OutlinedButton(
+                    onPressed: () {
+                      setState(() {
+												rotX = -0.42;
+												rotY = -0.26;
+												rotZ = -0.49;
+												depth = 7.0;
+												scale = 3.38;
+												transX = 0;
+												transY = 50;
+                      });
+                    },
+                    child: Text("View1"),
+                  ),
+									OutlinedButton(
+                    onPressed: () {
+                      setState(() {
+                        scale = 5.0;
+                        rotX = -0.51;
+                        rotY = 0;
+                        rotZ = -1.16;
+                        transX = 0;
+                        transY = 200;
+                      });
+                    },
+                    child: Text("View2"),
+                  ),
+									OutlinedButton(
+                    onPressed: () {
+                      setState(() {
+                        scale = 1;
+                        rotX = 0;
+                        rotY = 0;
+                        rotZ = 0;
+                        transX = 0;
+                        transY = 0;
+                      });
+                    },
+                    child: Text("Reset"),
+                  ),
+                ],
               )
             ],
           )
@@ -176,23 +289,44 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
     );
   }
 
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  void setAnimationForStatus(AnimationStatus status) {
-    switch (status) {
-      case AnimationStatus.completed:       
-        controller.reset();
-        break;
-      case AnimationStatus.dismissed:
-        controller.forward();
-        break;
-      default:
-        break;
-    }
+  Widget get translateButtons  
+  {
+    return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+    OutlinedButton(
+    onPressed: () {
+      setState(() {
+        transX = transX - 20;
+      });
+    },
+    child: Text("Left"),
+    ),
+    OutlinedButton(
+    onPressed: () {
+      setState(() {
+        transX = transX + 20;
+      });
+    },
+    child: Text("Right"),
+    ),
+    OutlinedButton(
+    onPressed: () {
+      setState(() {
+        transY = transY - 20;
+      });
+    },
+    child: Text("UP"),
+    ),
+    OutlinedButton(
+    onPressed: () {
+      setState(() {
+        transY = transY + 20;
+      });
+    },
+    child: Text("Down")
+    )
+    ]);
   }
 }
 
@@ -205,8 +339,12 @@ class WavePainter3 extends CustomPainter {
   final double scale;
   final double transX;
   final double transY;
+	final double depth;
+	final double hue;
+	final double thickness;
+	final int waves;
 
-  WavePainter3(this.time, this.rotX, this.rotY, this.rotZ, this.scale, this.transX, this.transY);
+  WavePainter3(this.time, this.rotX, this.rotY, this.rotZ, this.scale, this.transX, this.transY, this.depth, this.hue, this.thickness, this.waves);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -215,13 +353,14 @@ class WavePainter3 extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeJoin = StrokeJoin.round
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 6;
+      ..strokeWidth = thickness;
 
 		int alphaForFraction(double fraction) {
 			return ((sin((time * 2 * pi + 1.6* pi) - (0.5 * pi) + (fraction * pi)) + 1) * 0.5 * 200).toInt();
 		}
 
-    final Color baseColor = Color.fromARGB(255, 33, 240, 243);
+    const Color baseColor = Color.fromARGB(255, 33, 240, 243);
+		final Color modColor = increaseColorHue(baseColor, hue);
 
     //final List<double> gradientStops = List.generate(10, (index) => index * 0.11);
     final List<double> gradientStops = [
@@ -233,18 +372,18 @@ class WavePainter3 extends CustomPainter {
     ];
 
     final gradient = ui.Gradient.linear(Offset(0, size.height * 0.5), Offset(size.width, size.height * 0.5), [
-      baseColor.withAlpha(0),
-      baseColor.withAlpha(0),
+     	modColor.withAlpha(0),
+      modColor.withAlpha(0),
       //baseColor.withAlpha(alphaForFraction(0.120)),
-      baseColor.withAlpha(alphaForFraction(0.0)),
-      baseColor.withAlpha(alphaForFraction(0.25)),
-			baseColor.withAlpha(alphaForFraction(0.450)),
-      baseColor.withAlpha(alphaForFraction(0.550)),
-			baseColor.withAlpha(alphaForFraction(0.650)),
-      baseColor.withAlpha(alphaForFraction(0.95)),
+      modColor.withAlpha(alphaForFraction(0.0)),
+      modColor.withAlpha(alphaForFraction(0.25)),
+			modColor.withAlpha(alphaForFraction(0.450)),
+      modColor.withAlpha(alphaForFraction(0.550)),
+			modColor.withAlpha(alphaForFraction(0.650)),
+      modColor.withAlpha(alphaForFraction(0.95)),
 			//baseColor.withAlpha(alphaForFraction(0.900)),
-      baseColor.withAlpha(0),
-      baseColor.withAlpha(0),
+      modColor.withAlpha(0),
+      modColor.withAlpha(0),
       // Color.fromARGB(255, 237, 244, 19),
       // Color.fromARGB(0, 255, 255, 255),
     ], gradientStops);
@@ -260,15 +399,13 @@ class WavePainter3 extends CustomPainter {
     final depthMatrix = Matrix4.identity()
       ..setEntry(3, 0, 0.000)
       ..setEntry(3, 1, 0.000)
-      ..setEntry(3, 2, 0.007);
+      ..setEntry(3, 2, depth / 1000);
 
     // transform canvas space
     canvas.translate(transX, transY);
     canvas.transform(depthMatrix.storage);
     canvas.transform(rotationMatrix.storage);
     
-    
-
     // create path
     final double scaleValue = (sin(2*pi*time) * 0.05) + 1;
     //final pathOffset_1 = offset * sin(time * 2 * pi + pi);
@@ -278,26 +415,31 @@ class WavePainter3 extends CustomPainter {
 
     final Path path_0 = createWavePath(size);
     //final Path modPath_0 = path_0.shift(Offset(transX, transY));
-    canvas.drawPath(path_0, paint0);
-    
 
-    // create path
-    //final pathOffset_1 = offset * sin(time * 2 * pi);
-    final path_1 = path_0.shift(Offset(2, 2));
-    canvas.drawPath(path_1, paint0);
-
-        // create path
-    //final pathOffset_2 = 2 * offset * sin(time * 2 * pi);
-    final path_2 = path_0.shift(Offset(4, 4));
-    canvas.drawPath(path_2, paint0);
+		const double offsetVal = 2.0;
+		for (var w = 0; w < waves; w++)
+		{
+			final offset = Offset(w * offsetVal, w * offsetVal);
+		  final path = path_0.shift(offset);
+			canvas.drawPath(path, paint0);
+		}
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+  bool shouldRepaint(covariant WavePainter3 oldDelegate)
+	{
+    return oldDelegate.time != time;
   }
 
-  Path createWavePath(Size size) {
+	Color increaseColorHue(Color color, double increment) 
+	{
+		var hslColor = HSLColor.fromColor(color);
+		var newValue = min(max(hslColor.lightness + increment, 0.0), 360.0);
+		return hslColor.withHue(newValue).toColor();
+	}
+
+  Path createWavePath(Size size) 
+	{
     final path_0 = Path();
     path_0.moveTo(size.width * 0.9816266, size.height * 0.6732048);
     path_0.cubicTo(size.width * 0.9699056, size.height * 0.8037976, size.width * 0.9457210, size.height * 0.8865714, size.width * 0.9192232,
