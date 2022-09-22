@@ -20,7 +20,7 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
   double scale = 1;
   double transX = 0;
   double transY = 50;
-	double hue = 250;
+	double hue = 175;
 	double thickness = 2.0;
 	int waves = 1;
 
