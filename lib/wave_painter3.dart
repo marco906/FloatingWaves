@@ -98,6 +98,9 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
                   thicknessControl,
                   glowControl,
                 ]),
+                controlRow(children: [
+                  speedControl,
+                ]),
 
                 translateButtons,
                 viewButtons
@@ -251,6 +254,19 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
     ]);
   }
 
+  Widget get speedControl
+  {
+    return Column(children: [
+      controlHeader("Speed", config.duration.toDouble()/1000, 0),
+      Slider(
+        value: config.duration.toDouble(), min: 1000, max: 5000, 
+        onChanged: (double value) { setState(() { 
+          config.duration = value.toInt();
+          controller.duration = Duration(milliseconds: value.toInt()); }); }
+      ),
+    ]);
+  }
+
   Widget get translateButtons  
   {
     return Row(
@@ -325,7 +341,7 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
         ),
         OutlinedButton(
           onPressed: () {
-            setState(() { config = WaveCofig.base; });
+            setState(() { config = WaveCofig(); });
           },
           child: Text("Reset"),
         ),
