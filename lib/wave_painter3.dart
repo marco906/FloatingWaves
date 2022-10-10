@@ -12,6 +12,8 @@ class WaveDemo3 extends StatefulWidget {
 
 class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMixin {
   WaveCofig config = WaveCofig();
+	bool isPlaying = true;
+	double stoppedTime = 0.0;
 
   late Animation<double> _animation;
   late AnimationController controller;
@@ -74,18 +76,15 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
             child: ListView(
               shrinkWrap: true,
               children: [
+								controlRow(children: [
+                  playButton,
+									speedControl
+                ]),
                 controlRow(children: [
                   ampControl,
                   densityControl,
                 ]),
-                controlRow(children: [
-                  rotationControl(config.rotX, RotationType.X),
-                  rotationControl(config.rotY, RotationType.Y),
-                ]),
-                controlRow(children: [
-                  rotationControl(config.rotZ, RotationType.Z),
-                  depthControl,
-                ]),
+
                 controlRow(children: [
                   scaleControl,
                   windowFractionControl,
@@ -99,7 +98,19 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
                   glowControl,
                 ]),
                 controlRow(children: [
-                  speedControl,
+                  waveTrimControl,
+									waveOffsetControl
+                ]),
+								controlRow(children: [
+                  waveFadeControl,
+                ]),
+								controlRow(children: [
+                  rotationControl(config.rotX, RotationType.X),
+                  rotationControl(config.rotY, RotationType.Y),
+                ]),
+                controlRow(children: [
+                  rotationControl(config.rotZ, RotationType.Z),
+                  depthControl,
                 ]),
 
                 translateButtons,
@@ -193,7 +204,7 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
     return Column(children: [
       controlHeader("Waves", config.waves.toDouble(), 0),
       Slider(
-        value: config.waves.toDouble(), divisions: 9, min: 1, max: 10, 
+        value: config.waves.toDouble(), divisions: config.maxWaves - 1, min: 1, max: config.maxWaves.toDouble(), 
         onChanged: (double value) { setState(() { config.waves = value.toInt(); }); }
       ),
     ]);
@@ -224,9 +235,9 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
   Widget get densityControl
   {
     return Column(children: [
-      controlHeader("Width", config.density, 1),
+      controlHeader("Density", config.density, 1),
       Slider(
-        value: config.density, min: 1, max: 10, 
+        value: config.density, min: 1, max: 5, 
         onChanged: (double value) { setState(() { config.density = value; }); }
       ),
     ]);
@@ -266,6 +277,52 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
       ),
     ]);
   }
+
+	Widget get waveOffsetControl
+  {
+    return Column(children: [
+      controlHeader("WaveOffset", config.waveOffset.dx, 2),
+      Slider(
+        value: config.waveOffset.dx, min: 0.0, max: 10, 
+        onChanged: (double value) { setState(() { config.waveOffset = Offset(value, config.waveOffset.dy); }); }
+      ),
+    ]);
+  }
+
+	Widget get waveTrimControl
+  {
+    return Column(children: [
+      controlHeader("WaveTrim", config.waveTrim, 1),
+      Slider(
+        value: config.waveTrim, min: 0.0, max: 10, 
+        onChanged: (double value) { setState(() { config.waveTrim = value; }); }
+      ),
+    ]);
+  }
+
+	Widget get waveFadeControl
+  {
+    return Column(children: [
+      controlHeader("WaveFade", config.waveFadeFactor, 1),
+      Slider(
+        value: config.waveFadeFactor, min: 0.0, max: 1.0, 
+        onChanged: (double value) { setState(() { config.waveFadeFactor = value; }); }
+      ),
+    ]);
+  }
+
+	Widget get playButton
+	{
+		return OutlinedButton(
+    onPressed: () {
+      setState(() {
+				isPlaying ? controller.stop() : controller.forward();
+				isPlaying = !isPlaying;
+      });
+    },
+    child: Text(isPlaying ? "Pause" : "Play"),
+    );
+	}
 
   Widget get translateButtons  
   {
@@ -341,7 +398,14 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
         ),
         OutlinedButton(
           onPressed: () {
-            setState(() { config = WaveCofig(); });
+            setState(() {
+              config.scale = 1;
+              config.rotX = 0;
+              config.rotY = 0;
+              config.rotZ = 0;
+              config.transX = 0;
+              config.transY = 0;
+            });
           },
           child: Text("Reset"),
         ),
@@ -353,9 +417,9 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
 class WaveCofig
 {
   double width = 300;
-  double windowfraction = 0.4;
-  double amplitude = 0.3;
-  double density = 4;
+  double windowfraction = 0.6;
+  double amplitude = 0.40;
+  double density = 2.0;
   double rotX = 0;
   double rotY = 0;
   double rotZ = 0;
@@ -363,13 +427,24 @@ class WaveCofig
   double scale = 1;
   double transX = 0;
   double transY = 0;
-	double hue = 75;
+	double hue = 215;
   double blur = 0.0;
-	double thickness = 2.0;
-	int waves = 1;
+	double thickness = 1.5;
+	int waves = 15;
+	int waveGroups = 1;
+	double waveTrim = 3.0;
+	Offset waveOffset = Offset(2.2, 0);
+	Offset waveGroupOffset = Offset(50, 0);
+	double waveFadeFactor = 1.0;
   int duration = 3000;
+	final int maxWaves = 20;
 
-  static WaveCofig base = WaveCofig();
+  static WaveCofig get simple
+	{
+		final WaveCofig config = WaveCofig();
+		config.waves = 1;
+		return config;
+	}
 }
 
 // Painter
@@ -404,31 +479,38 @@ class WavePainter3 extends CustomPainter {
       ..setEntry(3, 1, 0.000)
       ..setEntry(3, 2, config.depth / 1000);
 
+		void drawWaveGroup(Canvas canvas)
+		{
+			for (var w = 0; w < config.waves; w++)
+			{
+				
+				final double offsetx = config.waveOffset.dx * w;
+				final double waveTrim = config.waveTrim * w;
+				final double fadeValue = w / config.waves;
+				//final Matrix4 matrix = Matrix4.identity().scaled(1, 1, 1);
+				final Path path = createWavePath(size, w, waveTrim, offsetx);
+
+				final Color waveColor = modColor.withAlpha(modColor.alpha - (modColor.alpha * fadeValue * config.waveFadeFactor).toInt());
+				Paint paint_x = paint0;
+				paint_x.color = waveColor;
+				canvas.drawPath(path, paint_x);
+			}
+		}
+
     // transform canvas space
     canvas.translate(config.transX, config.transY);
     canvas.transform(depthMatrix.storage);
     canvas.transform(rotationMatrix.storage);
 
-		final double offsetVal = 2;
-		for (var w = 0; w < config.waves; w++)
-		{
-      final Path path_0 = createWavePath(size, w);
-			final offset = Offset(w * offsetVal, 0);
-      //final Matrix4 matrix = Matrix4.identity().scaled(1, 1, 1);
-		  final path = path_0.shift(-offset);
-      final random = Random();
-      
-      final Color color_x = modColor.withAlpha(modColor.alpha - (w * 15));
-      Paint paint_x = paint0;
-      paint_x.color = color_x;
-			canvas.drawPath(path, paint_x);
-		}
+		drawWaveGroup(canvas);
+		
   }
 
   @override
   bool shouldRepaint(covariant WavePainter3 oldDelegate)
 	{
-    return oldDelegate.time != time;
+		return true;
+    //return (oldDelegate.time != time || oldDelegate.config != config);
   }
 
 	Color increaseColorHue(Color color, double increment) 
@@ -444,24 +526,24 @@ class WavePainter3 extends CustomPainter {
     final density = config.density;
     const omega = 2 * pi;
     final double amp = size.height * 0.5 * config.amplitude;
-    final double variation = 1 - index * 0.05;
+    final double variation = 1 - index * 0.1;
     //var random = Random();
     //final double factor = random.nextDouble();
     return sin(xFraction * omega * density) * amp * variation;
   }
 
-  Path createWavePath(Size size, index) 
+  Path createWavePath(Size size, int index, double windowTrim, double waveOffset) 
 	{
     final width = size.width;
     final double windowWidth = width * config.windowfraction;
-    double xmin = time * (width + windowWidth) - windowWidth;
-    double xmax = xmin + windowWidth;
-    xmin = xmin < 0 ? 0 : xmin.roundToDouble();
-    xmax = xmax > width ? width : xmax.roundToDouble();
+    double xmin = time * (width + windowWidth) - windowWidth + windowTrim;
+    double xmax = xmin + windowWidth - 3 * windowTrim;
+    xmin = xmin < -windowTrim ? -windowTrim : xmin;
+    xmax = xmax > width ? width : xmax;
 
     List<Offset> relativePoints = [];
     for (double x = xmin; x <= xmax; x++) {
-      final relativePoint = Offset(x, yValue(x/width, size, index));
+      final relativePoint = Offset(x + waveOffset, yValue(x/width, size, index));
       relativePoints.add(relativePoint);
     }
     final path_0 = Path();
