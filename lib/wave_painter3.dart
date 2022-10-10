@@ -90,7 +90,7 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
                   windowFractionControl,
                 ]),
                 controlRow(children: [
-                  waveControl,
+                  satControl,
                   hueControl,
                 ]),
                 controlRow(children: [
@@ -98,10 +98,11 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
                   glowControl,
                 ]),
                 controlRow(children: [
-                  waveTrimControl,
+                  waveControl,
 									waveOffsetControl
                 ]),
 								controlRow(children: [
+									waveTrimControl,
                   waveFadeControl,
                 ]),
 								controlRow(children: [
@@ -217,6 +218,17 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
       Slider(
         value: config.hue, min: 0, max: 360, 
         onChanged: (double value) { setState(() { config.hue = value; }); }
+      ),
+    ]);
+  }
+
+	Widget get satControl
+  {
+    return Column(children: [
+      controlHeader("Saturation", config.saturation, 1),
+      Slider(
+        value: config.saturation, min: 0, max: 1, 
+        onChanged: (double value) { setState(() { config.saturation = value; }); }
       ),
     ]);
   }
@@ -428,6 +440,7 @@ class WaveCofig
   double transX = 0;
   double transY = 0;
 	double hue = 215;
+	double saturation = 1.0;
   double blur = 0.0;
 	double thickness = 1.5;
 	int waves = 15;
@@ -452,13 +465,18 @@ class WavePainter3 extends CustomPainter {
   final double time;
   final WaveCofig config;
 
+	Color get modColor
+	{
+		const Color baseColor = Color.fromARGB(200, 33, 240, 243);
+		final Color modhue = increaseColorHue(baseColor, config.hue);
+		final Color modSat = increaseColorSat(modhue, config.saturation);
+		return modSat;
+	}
+
   WavePainter3(this.time, this.config);
 
   @override
   void paint(Canvas canvas, Size size) {
-
-    const Color baseColor = Color.fromARGB(200, 33, 240, 243);
-		final Color modColor = increaseColorHue(baseColor, config.hue);
 
     Paint paint0 = Paint()
       ..color = modColor
@@ -518,6 +536,12 @@ class WavePainter3 extends CustomPainter {
 		var hslColor = HSLColor.fromColor(color);
 		var newValue = min(max(hslColor.lightness + increment, 0.0), 360.0);
 		return hslColor.withHue(newValue).toColor();
+	}
+
+	Color increaseColorSat(Color color, double value) 
+	{
+		var hslColor = HSLColor.fromColor(color);
+		return hslColor.withSaturation(value).toColor();
 	}
 
   // create path
