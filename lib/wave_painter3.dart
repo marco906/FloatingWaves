@@ -68,7 +68,7 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
                 padding: const EdgeInsets.only(top: 100),
                 child: CustomPaint(
                   size: Size(size.width, (size.width * 0.2)),
-                  painter: WavePainter3(controller.value, config),
+                  painter: WavePainter3(0.5, config),
                 ),
               );
             }),
@@ -439,7 +439,8 @@ class WaveCofig
   double scale = 1;
   double transX = 0;
   double transY = 0;
-	double hue = 215;
+	double hue = 234;
+	//Gradient gradient = LinearGradient(colors: colors)
 	double saturation = 1.0;
   double blur = 0.0;
 	double thickness = 1.5;
@@ -479,12 +480,14 @@ class WavePainter3 extends CustomPainter {
   void paint(Canvas canvas, Size size) {
 
     Paint paint0 = Paint()
-      ..color = modColor
+      //..color = modColor
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeWidth = config.thickness
       ..maskFilter = MaskFilter.blur(BlurStyle.solid, config.blur)
+			//..shader = LinearGradient(colors: [Colors.blue, Colors.blueAccent, Colors.purple, Colors.red]).createShader(Rect.fromCircle(center: Offset(size.width / 2, size.height / 2), radius: size.width / 2))
       ..blendMode = BlendMode.screen;
+			
 
     final rotationMatrix = Matrix4.identity()
       ..rotateX(config.rotX)
@@ -505,13 +508,18 @@ class WavePainter3 extends CustomPainter {
 				final double offsetx = config.waveOffset.dx * w;
 				final double waveTrim = config.waveTrim * w;
 				final double fadeValue = w / config.waves;
-				//final Matrix4 matrix = Matrix4.identity().scaled(1, 1, 1);
 				final Path path = createWavePath(size, w, waveTrim, offsetx);
 
 				final Color waveColor = modColor.withAlpha(modColor.alpha - (modColor.alpha * fadeValue * config.waveFadeFactor).toInt());
-				Paint paint_x = paint0;
-				paint_x.color = waveColor;
-				canvas.drawPath(path, paint_x);
+				Paint wavePaint = paint0;
+				wavePaint.color = waveColor;
+
+				// rainbow
+				// final double hueOffset = w / config.waves * 360;
+				// final Color rainbowColor = increaseColorHue(waveColor, hueOffset);
+				// wavePaint.color = rainbowColor;
+
+				canvas.drawPath(path, wavePaint);
 			}
 		}
 
@@ -551,8 +559,6 @@ class WavePainter3 extends CustomPainter {
     const omega = 2 * pi;
     final double amp = size.height * 0.5 * config.amplitude;
     final double variation = 1 - index * 0.1;
-    //var random = Random();
-    //final double factor = random.nextDouble();
     return sin(xFraction * omega * density) * amp * variation;
   }
 
