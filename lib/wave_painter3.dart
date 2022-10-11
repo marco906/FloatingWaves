@@ -68,7 +68,7 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
                 padding: const EdgeInsets.only(top: 100),
                 child: CustomPaint(
                   size: Size(size.width, (size.width * 0.2)),
-                  painter: WavePainter3(0.5, config),
+                  painter: WavePainter3(controller.value, config),
                 ),
               );
             }),
@@ -76,6 +76,7 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
             child: ListView(
               shrinkWrap: true,
               children: [
+								presetButtons,
 								controlRow(children: [
                   playButton,
 									speedControl
@@ -280,7 +281,7 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
   Widget get speedControl
   {
     return Column(children: [
-      controlHeader("Speed", config.duration.toDouble()/1000, 0),
+      controlHeader("Speed", config.duration.toDouble()/1000, 1),
       Slider(
         value: config.duration.toDouble(), min: 1000, max: 5000, 
         onChanged: (double value) { setState(() { 
@@ -376,6 +377,34 @@ class _WaveDemo3State extends State<WaveDemo3> with SingleTickerProviderStateMix
     ]);
   }
 
+	Widget get presetButtons  
+  {
+    return Row(
+			mainAxisAlignment: MainAxisAlignment.spaceBetween,
+			children: [
+				OutlinedButton(
+					onPressed: () { setState(() { config = WaveCofig.simple; });},
+					child: Text("Simple"),
+				),
+				OutlinedButton(
+					onPressed: () { setState(() { config = WaveCofig.adv1; });},
+					child: Text("Adv1"),
+				),
+				OutlinedButton(
+					onPressed: () { setState(() { config = WaveCofig.adv2; });},
+					child: Text("Adv2"),
+				),
+				OutlinedButton(
+					onPressed: () { setState(() { config = WaveCofig.advGradient; });},
+					child: Text("Gradient"),
+				),
+				OutlinedButton(
+					onPressed: () { setState(() { config = WaveCofig.advRainbow; });},
+					child: Text("🌈"),
+				),
+			]);
+  }
+
   Widget get viewButtons
   {
     return Row(
@@ -440,7 +469,8 @@ class WaveCofig
   double transX = 0;
   double transY = 0;
 	double hue = 234;
-	//Gradient gradient = LinearGradient(colors: colors)
+	Shader? shader;
+	bool rainbow = false;
 	double saturation = 1.0;
   double blur = 0.0;
 	double thickness = 1.5;
@@ -451,12 +481,68 @@ class WaveCofig
 	Offset waveGroupOffset = Offset(50, 0);
 	double waveFadeFactor = 1.0;
   int duration = 3000;
-	final int maxWaves = 20;
+	int maxWaves = 20;
 
   static WaveCofig get simple
 	{
 		final WaveCofig config = WaveCofig();
+		config.amplitude = 0.30;
+		config.density = 5.0;
+		config.windowfraction = 0.4;
 		config.waves = 1;
+		config.thickness = 3;
+		return config;
+	}
+
+	static WaveCofig get adv1
+	{
+		final WaveCofig config = WaveCofig();
+		return config;
+	}
+
+	static WaveCofig get adv2
+	{
+		final WaveCofig config = WaveCofig();
+		config.amplitude = 0.35;
+		config.density = 3.4;
+		config.windowfraction = 0.5;
+		config.waves = 14;
+		config.waveOffset = Offset(1.85, 0);
+		config.waveTrim = 1.7;
+		config.waveFadeFactor = 0.6;
+		return config;
+	}
+
+	static WaveCofig get advGradient
+	{
+		final WaveCofig config = WaveCofig();
+		config.amplitude = 0.5;
+		config.density = 1.8;
+		config.windowfraction = 0.7;
+		config.thickness = 2.0;
+		config.blur = 0.53;
+		config.waves = 19;
+		config.waveOffset = Offset(1.9, 0);
+		config.waveTrim = 4.3;
+		config.waveFadeFactor = 0.8;
+		final Gradient gradient = LinearGradient(colors: [Colors.blue, Colors.blueAccent, Colors.purple, Colors.red]);
+		config.shader = gradient.createShader(Rect.fromCircle(center: Offset(config.width / 2, config.width / 2), radius: config.width / 2));
+		return config;
+	}
+
+	static WaveCofig get advRainbow
+	{
+		final WaveCofig config = WaveCofig();
+		config.amplitude = 0.5;
+		config.density = 2.2;
+		config.windowfraction = 0.5;
+		config.thickness = 6.3;
+		config.blur = 0.67;
+		config.waves = 18;
+		config.waveOffset = Offset(2.4, 0);
+		config.waveTrim = 1.5;
+		config.waveFadeFactor = 0.9;
+		config.rainbow= true;
 		return config;
 	}
 }
@@ -485,7 +571,7 @@ class WavePainter3 extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeWidth = config.thickness
       ..maskFilter = MaskFilter.blur(BlurStyle.solid, config.blur)
-			//..shader = LinearGradient(colors: [Colors.blue, Colors.blueAccent, Colors.purple, Colors.red]).createShader(Rect.fromCircle(center: Offset(size.width / 2, size.height / 2), radius: size.width / 2))
+			..shader = config.rainbow ? null : config.shader
       ..blendMode = BlendMode.screen;
 			
 
@@ -515,9 +601,12 @@ class WavePainter3 extends CustomPainter {
 				wavePaint.color = waveColor;
 
 				// rainbow
-				// final double hueOffset = w / config.waves * 360;
-				// final Color rainbowColor = increaseColorHue(waveColor, hueOffset);
-				// wavePaint.color = rainbowColor;
+				if (config.rainbow)
+				{
+					final double hueOffset = w / config.waves * 360;
+					final Color rainbowColor = increaseColorHue(waveColor, hueOffset);
+					wavePaint.color = rainbowColor;
+				}
 
 				canvas.drawPath(path, wavePaint);
 			}
