@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:waves/wave_painter3.dart';
-import 'wave_painter.dart';
-import 'dart:math';
+import 'package:waves/page.dart';
 
 void main() => runApp(const MyApp());
 
@@ -14,7 +12,7 @@ class MyApp extends StatelessWidget {
 			theme: ThemeData(
 				primarySwatch: Colors.blue,
 			),
-			home: const WaveDemo3(),
+			home: const WaveDemo(),
 		);
 	}
 }	
